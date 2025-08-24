@@ -28,7 +28,7 @@ export function NoteCard({ note }: NoteCardProps) {
       } else {
         toast.error(result.error || 'Failed to update note');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to update note');
     } finally {
       setIsLoading(false);
@@ -50,7 +50,7 @@ export function NoteCard({ note }: NoteCardProps) {
       } else {
         toast.error(result.error || 'Failed to delete note');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to delete note');
     } finally {
       setIsLoading(false);

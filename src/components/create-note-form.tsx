@@ -22,7 +22,7 @@ export function CreateNoteForm() {
       } else {
         toast.error(result.error || 'Failed to create note');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to create note');
     } finally {
       setIsLoading(false);

@@ -2,6 +2,16 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createNote, getNotesByUserId, updateNote, deleteNote } from '../notes';
 import { prisma } from '../prisma';
 
+type MockedPrisma = typeof prisma & {
+  note: {
+    findMany: ReturnType<typeof vi.fn>;
+    create: ReturnType<typeof vi.fn>;
+    findFirst: ReturnType<typeof vi.fn>;
+    update: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+  };
+};
+
 vi.mock('../prisma', () => ({
   prisma: {
     note: {
@@ -32,7 +42,7 @@ describe('Notes Service', () => {
   describe('getNotesByUserId', () => {
     it('should return notes for a specific user', async () => {
       const mockNotes = [mockNote];
-      (prisma.note.findMany as any).mockResolvedValue(mockNotes);
+      (prisma as MockedPrisma).note.findMany.mockResolvedValue(mockNotes);
 
       const result = await getNotesByUserId(mockUserId);
 
@@ -44,7 +54,7 @@ describe('Notes Service', () => {
     });
 
     it('should return empty array when user has no notes', async () => {
-      (prisma.note.findMany as any).mockResolvedValue([]);
+      (prisma as MockedPrisma).note.findMany.mockResolvedValue([]);
 
       const result = await getNotesByUserId(mockUserId);
 
@@ -55,7 +65,7 @@ describe('Notes Service', () => {
   describe('createNote', () => {
     it('should create a new note', async () => {
       const noteData = { title: 'New Note', content: 'New content' };
-      (prisma.note.create as any).mockResolvedValue({ ...mockNote, ...noteData });
+      (prisma as MockedPrisma).note.create.mockResolvedValue({ ...mockNote, ...noteData });
 
       const result = await createNote(mockUserId, noteData);
 
@@ -73,8 +83,8 @@ describe('Notes Service', () => {
   describe('updateNote', () => {
     it('should update an existing note', async () => {
       const updateData = { id: mockNote.id, title: 'Updated Title', content: 'Updated content' };
-      (prisma.note.findFirst as any).mockResolvedValue(mockNote);
-      (prisma.note.update as any).mockResolvedValue({ ...mockNote, ...updateData });
+      (prisma as MockedPrisma).note.findFirst.mockResolvedValue(mockNote);
+      (prisma as MockedPrisma).note.update.mockResolvedValue({ ...mockNote, ...updateData });
 
       const result = await updateNote(mockUserId, updateData);
 
@@ -93,7 +103,7 @@ describe('Notes Service', () => {
 
     it('should throw error when note not found', async () => {
       const updateData = { id: 'nonexistent', title: 'Title', content: 'Content' };
-      (prisma.note.findFirst as any).mockResolvedValue(null);
+      (prisma as MockedPrisma).note.findFirst.mockResolvedValue(null);
 
       await expect(updateNote(mockUserId, updateData)).rejects.toThrow('Note not found or access denied');
     });
@@ -101,8 +111,8 @@ describe('Notes Service', () => {
 
   describe('deleteNote', () => {
     it('should delete an existing note', async () => {
-      (prisma.note.findFirst as any).mockResolvedValue(mockNote);
-      (prisma.note.delete as any).mockResolvedValue(mockNote);
+      (prisma as MockedPrisma).note.findFirst.mockResolvedValue(mockNote);
+      (prisma as MockedPrisma).note.delete.mockResolvedValue(mockNote);
 
       const result = await deleteNote(mockUserId, mockNote.id);
 
@@ -116,7 +126,7 @@ describe('Notes Service', () => {
     });
 
     it('should throw error when note not found', async () => {
-      (prisma.note.findFirst as any).mockResolvedValue(null);
+      (prisma as MockedPrisma).note.findFirst.mockResolvedValue(null);
 
       await expect(deleteNote(mockUserId, 'nonexistent')).rejects.toThrow('Note not found or access denied');
     });

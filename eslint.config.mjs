@@ -20,7 +20,15 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
 
   // 3) Next.js rules (equivalent to `next/core-web-vitals`)
-  next.configs["core-web-vitals"],
+  {
+    plugins: {
+      "@next/next": next,
+    },
+    rules: {
+      ...next.configs.recommended.rules,
+      ...next.configs["core-web-vitals"].rules,
+    },
+  },
 
   // 4) Project-specific rules
   {
